@@ -1,6 +1,9 @@
 // GTA 6 clip entry (Node 22, standard library only).
 // Copies VIDEO.json (the YouTube video's address) from the repository to /output.
 // The video itself is the entry: the house reads it through the YouTube Data API.
+// The video is a public vertical Short (720x1280, 20s) cut from Rockstar's
+// GTA 6 Trailer 2; its last 3 seconds pitch make.fun on screen, and its
+// description carries the bounty line and the entry's play code.
 import { copyFileSync, existsSync, mkdirSync } from 'node:fs';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
