@@ -29,7 +29,8 @@ badge_path = f'{BASE}/footage/ghost-badge.png'
 badge.save(badge_path)
 print('ghost badge saved:', badge_path)
 
-# ffmpeg: trim, center-crop to 9:16, scale to 720x1280, overlay pitch text + ghost (last 3s)
+# ffmpeg: trim BOTH video and audio to 140-160s (in sync), center-crop to 9:16,
+# scale to 720x1280, overlay pitch text + ghost (last 3s)
 # drawtext with box for readability; escape the text for the filter
 def esc(s):
     return s.replace("'", "\\'").replace(':', '\\:')
@@ -42,13 +43,14 @@ vf = (
     f"drawtext=fontfile={FONT}:text='{esc(PITCH_TEXT2)}':fontsize=52:fontcolor=yellow:borderw=3:bordercolor=black:"
     f"x=(w-text_w)/2:y=950:enable='gte(t\\,{PITCH_START})'"
 )
+af = f"atrim=start={START}:duration={DUR},asetpts=PTS-STARTPTS"
 cmd = [
     'ffmpeg', '-y', '-v', 'error',
     '-i', SRC,
     '-i', badge_path,
     '-filter_complex',
-    f"[0:v]{vf}[v];[1:v]scale=180:180[bg];[v][bg]overlay=(W-180)/2:620:enable='gte(t\\,{PITCH_START})'[out]",
-    '-map', '[out]', '-map', '0:a',
+    f"[0:v]{vf}[v];[0:a]{af}[a];[1:v]scale=180:180[bg];[v][bg]overlay=(W-180)/2:620:enable='gte(t\\,{PITCH_START})'[out]",
+    '-map', '[out]', '-map', '[a]',
     '-t', str(DUR),
     '-c:v', 'libx264', '-preset', 'medium', '-crf', '20',
     '-c:a', 'aac', '-b:a', '128k',
